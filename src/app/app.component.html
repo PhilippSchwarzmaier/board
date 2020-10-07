@@ -1,0 +1,66 @@
+<header>
+  <h1>Kanban Board</h1>
+</header>
+<section>
+  <input
+    type="text"
+    placeholder="Add a new Task"
+    (keyup.enter)="add($event.target.value)"
+  />
+</section>
+<section id="board">
+  <div class="todDo">
+    <h2>ToDo</h2>
+    <div class="column">
+      <div class="task" *ngFor="let task of getToDos()">
+        <div class="content">
+          <h3>{{ task.content }}</h3>
+          <div class="taskMenu">
+            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
+            <select (change)="changeState($event.target.value, task.id)">
+              <option value="3">Progress</option>
+              <option value="2">Doing</option>
+              <option value="3">Done</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="doing">
+    <h2>Doing</h2>
+    <div class="column">
+      <div class="task" *ngFor="let task of getDoing()">
+        <div class="content">
+          <h3>{{ task.content }}</h3>
+          <div class="taskMenu">
+            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
+            <select (change)="changeState($event.target.value, task.id)">
+              <option value="2">Progress</option>
+              <option value="1">ToDo</option>
+              <option value="3">Done</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="done">
+    <h2>Done</h2>
+    <div class="column">
+      <div class="task" *ngFor="let task of getDone()">
+        <div class="content">
+          <h3>{{ task.content }}</h3>
+          <div class="taskMenu">
+            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
+            <select (change)="changeState($event.target.value, task.id)">
+              <option value="3">Progress</option>
+              <option value="2">Doing</option>
+              <option value="1">ToDo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
