@@ -46,14 +46,32 @@ input:focus {
 }
 
 .task {
-  background-color: red;
   margin: 5px;
   box-shadow: 15px 15px 25px -10px rgba(0, 0, 0, 0.75);
+}
+
+.toDo .task{
+  background-color: red;
+}
+
+.doing .task{
+  background-color: blue;
+}
+
+.done .task{
+  background-color: green;
 }
 
 .deleteBtn {
   padding: 5px;
   background-color: red;
+  border: none;
+  border-radius: 3px;
+}
+
+.cancelBtn {
+  padding: 5px;
+  background-color: rgb(108, 108, 218);
   border: none;
   border-radius: 3px;
 }

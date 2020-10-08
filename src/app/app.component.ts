@@ -1,73 +1,87 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BoardService } from './board.service';
+import { ToDo } from './toDo';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
-  tasks = [
-    {
-      id: 1,
-      content: 'this is the content',
-      state: 1,
-      created_at: '2018-05-29T09:12:57.752Z',
-      updated_at: '2018-05-29T09:12:57.752Z',
-    },
-    {
-      id: 2,
-      content: 'this is the content 2',
-      state: 2,
-      created_at: '2018-05-29T09:12:57.752Z',
-      updated_at: '2018-05-29T09:12:57.752Z',
-    },
-  ];
+export class AppComponent implements OnInit {
+  private allState: Subject<ToDo[]>;
+  private all: ToDo[];
 
-  constructor() {
-    console.log('tes');
-  }
+  toDos: Observable<ToDo[]>;
+  doings: Observable<ToDo[]>;
+  dones: Observable<ToDo[]>;
 
-  public add(title: any): void {
-    // console.log(title);
-    const task = {
-      id: 3,
-      content: title,
-      state: 3,
-      created_at: '2018-05-29T09:12:57.752Z',
-      updated_at: '2018-05-29T09:12:57.752Z',
-    };
+  editMode: number;
 
-    this.tasks.push(task);
-    console.log(this.tasks);
-  }
+  constructor(private boardService: BoardService) {}
 
-  public delete(id:number): void {
-    this.tasks = this.tasks.filter(t=>t.id!==id);
-  }
+  ngOnInit(): void {
+    this.boardService.getAll().subscribe((t) => {
+      this.allState = new BehaviorSubject<ToDo[]>(t);
+      this.all = t;
 
-  getToDos() {
-    console.log('stat1');
-    return this.tasks.filter((t) => t.state === 1);
-  }
-
-  getDoing() {
-    console.log('stat2');
-    return this.tasks.filter((t) => t.state === 2);
-  }
-
-  getDone() {
-    console.log('stat3');
-    return this.tasks.filter((t) => t.state === 3);
-  }
-
-  changeState(state: number, id:number) {
-    // console.log(state+" "+id);
-     this.tasks.forEach(t=>{
-      if(t.id === id)
-      {
-        t.state = +state;
-      }
+      this.toDos = this.allState.pipe(
+        map((todos) => todos.filter((todo) => todo.state === 1))
+      );
+  
+      this.doings = this.allState.pipe(
+        map((todos) => todos.filter((todo) => todo.state === 2))
+      );
+  
+      this.dones = this.allState.pipe(
+        map((todos) => todos.filter((todo) => todo.state === 3))
+      );
     });
-    console.log(this.tasks);
+
+
+  }
+
+  public add(input: HTMLInputElement): void {
+    this.boardService.add(input.value).subscribe((t) => {
+      this.all.push(t);
+      this.allState.next(this.all);
+      input.value = '';
+    });
+  }
+
+  public delete(id: number): void {
+    this.boardService.delete(id).subscribe(() => {
+      this.all = this.all.filter((t) => t.id !== id);
+      this.allState.next(this.all);
+    });
+  }
+
+  updateState(state: number, toDo: ToDo) {
+    toDo.state = +state;
+    this.boardService.update(toDo).subscribe((updatetoDo) => {
+      this.all = this.all.filter((t) => t.id !== toDo.id);
+      this.all.push(updatetoDo);
+      this.allState.next(this.all);
+    });
+  }
+
+  updateContent(content: string, toDo: ToDo) {
+    toDo.content = content;
+    this.boardService.update(toDo).subscribe((updatetoDo) => {
+      this.all = this.all.filter((t) => t.id !== toDo.id);
+      this.all.push(updatetoDo);
+      this.allState.next(this.all);
+
+      this.offEditMode(toDo.id);
+    });
+  }
+
+  onEditMode(id: number) {
+    this.editMode = id;
+  }
+
+  offEditMode(id: number) {
+    this.editMode = -1;
   }
 }

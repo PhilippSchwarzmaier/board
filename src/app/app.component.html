@@ -5,19 +5,33 @@
   <input
     type="text"
     placeholder="Add a new Task"
-    (keyup.enter)="add($event.target.value)"
+    (keyup.enter)="add($event.target)"
   />
 </section>
 <section id="board">
-  <div class="todDo">
+  <div class="toDo">
     <h2>ToDo</h2>
     <div class="column">
-      <div class="task" *ngFor="let task of getToDos()">
+      <div class="task" *ngFor="let todo of toDos | async">
         <div class="content">
-          <h3>{{ task.content }}</h3>
+          <ng-container *ngIf="editMode !== todo.id">
+            <h3  (click)="onEditMode(todo.id)">{{ todo.content }}</h3>
+          </ng-container>
+          <ng-container *ngIf="editMode === todo.id">
+            <input type="text" value="{{ todo.content }}" (keyup.enter)="updateContent($event.target.value,todo)"/>
+          </ng-container>
           <div class="taskMenu">
-            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
-            <select (change)="changeState($event.target.value, task.id)">
+            <ng-container *ngIf="editMode !== todo.id">
+              <button class="deleteBtn" (click)="delete(todo.id)">
+                Delete
+              </button>
+            </ng-container>
+            <ng-container *ngIf="editMode === todo.id">
+              <button class="cancelBtn" (click)="offEditMode(todo.id)">
+                Cancel
+              </button>
+            </ng-container>
+            <select (change)="updateState($event.target.value, todo)">
               <option value="3">Progress</option>
               <option value="2">Doing</option>
               <option value="3">Done</option>
@@ -30,12 +44,26 @@
   <div class="doing">
     <h2>Doing</h2>
     <div class="column">
-      <div class="task" *ngFor="let task of getDoing()">
+      <div class="task" *ngFor="let doing of doings | async">
         <div class="content">
-          <h3>{{ task.content }}</h3>
+          <ng-container *ngIf="editMode !== doing.id">
+            <h3 (click)="onEditMode(doing.id)">{{ doing.content }}</h3>
+          </ng-container>
+          <ng-container *ngIf="editMode === doing.id">
+            <input type="text" value="{{ doing.content }}" (keyup.enter)="updateContent($event.target.value,doing)"/>
+          </ng-container>
           <div class="taskMenu">
-            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
-            <select (change)="changeState($event.target.value, task.id)">
+            <ng-container *ngIf="editMode !== doing.id">
+              <button class="deleteBtn" (click)="delete(doing.id)">
+                Delete
+              </button>
+            </ng-container>
+            <ng-container *ngIf="editMode === doing.id">
+              <button class="cancelBtn" (click)="offEditMode(doing.id)">
+                Cancel
+              </button>
+            </ng-container>
+            <select (change)="updateState($event.target.value, doing)">
               <option value="2">Progress</option>
               <option value="1">ToDo</option>
               <option value="3">Done</option>
@@ -48,12 +76,24 @@
   <div class="done">
     <h2>Done</h2>
     <div class="column">
-      <div class="task" *ngFor="let task of getDone()">
+      <div class="task" *ngFor="let done of dones | async">
         <div class="content">
-          <h3>{{ task.content }}</h3>
+          <ng-container *ngIf="editMode !== done.id">
+            <h3 (click)="onEditMode(done.id)">{{ done.content }}</h3>
+          </ng-container>
+          <ng-container *ngIf="editMode === done.id">
+            <input type="text" value="{{ done.content }}" (keyup.enter)="updateContent($event.target.value,done)"/>
+          </ng-container>
           <div class="taskMenu">
-            <button class="deleteBtn" (click)="delete(task.id)">Delete</button>
-            <select (change)="changeState($event.target.value, task.id)">
+            <ng-container *ngIf="editMode !== done.id">
+            <button class="deleteBtn" (click)="delete(done.id)">Delete</button>
+          </ng-container>
+            <ng-container *ngIf="editMode === done.id">
+              <button class="cancelBtn" (click)="offEditMode(done.id)">
+                Cancel
+              </button>
+            </ng-container>
+            <select (change)="updateState($event.target.value, done)">
               <option value="3">Progress</option>
               <option value="2">Doing</option>
               <option value="1">ToDo</option>
